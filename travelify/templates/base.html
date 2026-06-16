@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Travelify — Explore the World{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Travelify2.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="mybody">
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <i class="bi bi-bluesky"></i>&nbsp;&nbsp;Travelify
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint=='index' %}active{% endif %}" href="{{ url_for('index') }}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#destinations">Destinations</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#blog">Stories</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint=='planner' %}active{% endif %}" href="{{ url_for('planner') }}">
+            <i class="bi bi-map"></i> Planner
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint=='tracker' %}active{% endif %}" href="{{ url_for('tracker') }}">
+            <i class="bi bi-wallet2"></i> Tracker
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('index') }}#contact">Contact</a>
+        </li>
+
+        <!-- Dark Mode Toggle -->
+        <li class="nav-item2">
+          <button id="themeToggle" class="theme-btn" type="button" title="Toggle dark mode">
+            <i class="bi bi-moon-fill"></i>
+          </button>
+        </li>
+
+        {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a href="{{ url_for('dashboard') }}" class="login-btn" style="text-decoration:none;">
+              <i class="bi bi-person-circle"></i> {{ current_user.initials }}
+            </a>
+          </li>
+          <li class="nav-item ms-1">
+            <a href="{{ url_for('logout') }}" class="login-btn" style="text-decoration:none;background:transparent;border:1px solid rgba(255,255,255,0.35);">
+              <i class="bi bi-box-arrow-right"></i>
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <button class="login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">
+              <i class="bi bi-person-circle"></i> Login
+            </button>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════ FLASH MESSAGES ═══════════════ -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flashBanner" style="position:fixed;top:74px;right:20px;z-index:9999;max-width:400px;">
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show shadow-lg"
+             style="border-radius:14px;font-family:'Outfit',sans-serif;font-size:0.88rem;border:none;">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo"><i class="bi bi-bluesky"></i> Travelify</div>
+      <p>Stories from the road, written with love from every corner of the earth. Your journey starts here.</p>
+      <div class="social-row">
+        <a href="https://www.instagram.com/a.aryan__18/" target="_blank" rel="noopener" title="Instagram"><i class="bi bi-instagram"></i></a>
+        <a href="https://x.com/golearyan22"              target="_blank" rel="noopener" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+        <a href="https://www.youtube.com/@AryanGole-o4x"  target="_blank" rel="noopener" title="YouTube"><i class="bi bi-youtube"></i></a>
+        <a href="#" title="Pinterest"><i class="bi bi-pinterest"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-col footer-explore-col">
+      <h5>Explore</h5>
+      <a href="{{ url_for('index') }}#destinations" class="footer-dest-link">
+        <div class="footer-dest-thumb footer-dest-thumb-taj"></div><span>Asia</span><i class="bi bi-chevron-right"></i>
+      </a>
+      <a href="{{ url_for('index') }}#destinations" class="footer-dest-link">
+        <div class="footer-dest-thumb footer-dest-thumb-rome"></div><span>Europe</span><i class="bi bi-chevron-right"></i>
+      </a>
+      <a href="{{ url_for('index') }}#destinations" class="footer-dest-link">
+        <div class="footer-dest-thumb footer-dest-thumb-ny"></div><span>Americas</span><i class="bi bi-chevron-right"></i>
+      </a>
+      <a href="{{ url_for('index') }}#destinations" class="footer-dest-link">
+        <div class="footer-dest-thumb footer-dest-thumb-africa"></div><span>Africa</span><i class="bi bi-chevron-right"></i>
+      </a>
+      <a href="{{ url_for('index') }}#destinations" class="footer-dest-link">
+        <div class="footer-dest-thumb footer-dest-thumb-zealand"></div><span>Oceania</span><i class="bi bi-chevron-right"></i>
+      </a>
+      <a href="{{ url_for('index') }}#destinations" class="footer-dest-link">
+        <div class="footer-dest-thumb footer-dest-thumb-dubai"></div><span>Middle East</span><i class="bi bi-chevron-right"></i>
+      </a>
+    </div>
+
+    <div class="footer-col">
+      <h5>Quick Links</h5>
+      <a href="{{ url_for('index') }}#about">Our Story</a>
+      <a href="{{ url_for('planner') }}">Trip Planner</a>
+      <a href="{{ url_for('tracker') }}">Expense Tracker</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}">My Dashboard</a>
+      {% endif %}
+      <a href="{{ url_for('index') }}#contact">Contact</a>
+    </div>
+
+    <div class="footer-col">
+      <h5>Travel Tips</h5>
+      <a href="https://www.ef.com/wwen/blog/language/how-to-travel-on-a-budget-9-best-tips/" target="_blank" rel="noopener">Budget Travel</a>
+      <a href="https://www.smartertravel.com/the-ultimate-packing-list/" target="_blank" rel="noopener">Packing Lists</a>
+      <a href="https://solotravelerworld.com/expert-solo-travel-tips/" target="_blank" rel="noopener">Solo Travel</a>
+      <a href="https://www.healthline.com/nutrition/healthy-eating-on-the-go" target="_blank" rel="noopener">Food Guides</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Travelify — Stay Happy &nbsp;<i class="bi bi-heart-fill" id="heart-icon"></i>&nbsp; Made with love in Aurangabad</p>
+  </div>
+</footer>
+
+<!-- ═══════════════ LOGIN / REGISTER MODAL ═══════════════ -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content login-modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title"><i class="bi bi-bluesky"></i> Travelify</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab"        id="registerTab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+      <div class="modal-body px-4 pb-4">
+
+        <!-- LOGIN -->
+        <div id="loginForm">
+          <form method="POST" action="{{ url_for('login_route') }}">
+            <div class="mb-3">
+              <label class="form-label auth-label">Email Address</label>
+              <input type="email" name="email" class="form-control auth-input" placeholder="you@email.com" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label auth-label">Password</label>
+              <input type="password" name="password" class="form-control auth-input" placeholder="Enter your password" required>
+            </div>
+            <div class="d-flex mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="remember" id="remMe">
+                <label class="form-check-label auth-label" for="remMe">Remember me</label>
+              </div>
+            </div>
+            <button type="submit" class="auth-submit-btn w-100">
+              <i class="bi bi-box-arrow-in-right"></i> Login to Travelify
+            </button>
+          </form>
+          <p class="auth-switch-text">Don't have an account?
+            <a href="#" onclick="switchAuthTab('register')">Register here</a>
+          </p>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="registerForm" style="display:none;">
+          <form method="POST" action="{{ url_for('register') }}">
+            <div class="mb-3">
+              <label class="form-label auth-label">Full Name</label>
+              <input type="text" name="name" class="form-control auth-input" placeholder="Your full name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label auth-label">Email Address</label>
+              <input type="email" name="email" class="form-control auth-input" placeholder="you@email.com" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label auth-label">Password</label>
+              <input type="password" name="password" class="form-control auth-input"
+                     placeholder="Min 6 characters" required minlength="6">
+            </div>
+            <div class="mb-3">
+              <label class="form-label auth-label">Confirm Password</label>
+              <input type="password" name="confirm" class="form-control auth-input"
+                     placeholder="Repeat your password" required>
+            </div>
+            <button type="submit" class="auth-submit-btn w-100">
+              <i class="bi bi-person-plus"></i> Create My Account
+            </button>
+          </form>
+          <p class="auth-switch-text">Already have an account?
+            <a href="#" onclick="switchAuthTab('login')">Login here</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ REVIEW MODAL ═══════════════ -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content login-modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Write a Review</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body px-4 pb-4">
+        <div class="mb-3">
+          <label class="form-label auth-label">Destination</label>
+          <select class="form-control auth-input">
+            <option>India</option><option>Tokyo</option><option>Bali</option>
+            <option>Dubai</option><option>Paris</option><option>Other</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label auth-label">Your Rating</label>
+          <div class="star-rating" id="starRating">
+            {% for v in [1,2,3,4,5] %}
+              <i class="bi bi-star review-star" data-value="{{ v }}"></i>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label auth-label">Your Review</label>
+          <textarea class="form-control auth-input" rows="4" placeholder="Share your experience..."></textarea>
+        </div>
+        <button class="auth-submit-btn w-100" data-bs-dismiss="modal"
+                onclick="showToast('Review submitted! Thank you 🙏')">
+          <i class="bi bi-send-fill"></i> Submit Review
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ BACK TO TOP ═══════════════ -->
+<button id="backToTop" class="back-to-top" title="Back to Top" onclick="scrollToTop()">
+  <i class="bi bi-chevron-up"></i>
+</button>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({ once: true });
+
+  /* ── Dark Mode ─────────────────────────────── */
+  const toggleBtn = document.getElementById("themeToggle");
+  if (localStorage.getItem('travelify_dark') === '1') {
+    document.body.classList.add('dark-mode');
+    toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+  }
+  toggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    const dark = document.body.classList.contains("dark-mode");
+    toggleBtn.innerHTML = dark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+    localStorage.setItem('travelify_dark', dark ? '1' : '0');
+  });
+
+  /* ── Navbar scroll shadow ──────────────────── */
+  window.addEventListener("scroll", () => {
+    document.querySelector(".navbar")
+            .classList.toggle("navbar-scrolled", window.scrollY > 60);
+  });
+
+  /* ── Auth tab toggle ───────────────────────── */
+  function switchAuthTab(tab) {
+    document.getElementById("loginForm").style.display    = tab === "login"    ? "block" : "none";
+    document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+    document.getElementById("loginTab").classList.toggle("active",    tab === "login");
+    document.getElementById("registerTab").classList.toggle("active", tab === "register");
+  }
+
+  /* ── Star rating ───────────────────────────── */
+  document.querySelectorAll(".review-star").forEach(star => {
+    star.addEventListener("click", function () {
+      const val = parseInt(this.dataset.value);
+      document.querySelectorAll(".review-star").forEach((s, i) => {
+        s.classList.toggle("bi-star-fill", i < val);
+        s.classList.toggle("bi-star",      i >= val);
+      });
+    });
+  });
+
+  /* ── Back to top ───────────────────────────── */
+  const backBtn = document.getElementById("backToTop");
+  window.addEventListener("scroll", () => backBtn.classList.toggle("show", window.scrollY > 400));
+  function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+  /* ── Toast helper ──────────────────────────── */
+  function showToast(msg) {
+    let t = document.getElementById("toastBox");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "toastBox"; t.className = "toast-box";
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3200);
+  }
+
+  /* ── Heart easter egg ──────────────────────── */
+  const h = document.getElementById("heart-icon");
+  if (h) h.addEventListener("click", () => {
+    h.style.color = h.style.color === "red" ? "#ffb74d" : "red";
+  });
+
+  /* ── Auto-dismiss flash alerts ─────────────── */
+  setTimeout(() => {
+    document.querySelectorAll("#flashBanner .alert").forEach(a => {
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(a);
+      if (bsAlert) bsAlert.close();
+    });
+  }, 6000);
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

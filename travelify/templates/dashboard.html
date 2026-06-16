@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard — Travelify{% endblock %}
+
+{% block extra_css %}
+<style>
+:root{--db-blue:#0a84ff;--db-dark:#0f172a;--db-card:#fff;--db-border:#e2e8f0;--db-muted:#64748b;--db-bg:#f8fafc;}
+.dark-mode{--db-card:#1e293b;--db-border:#334155;--db-muted:#94a3b8;--db-bg:#0f172a;}
+
+.dash-hero{background:linear-gradient(135deg,#0f172a 0%,#1a1a3e 60%,#0a84ff1a 100%);padding:4.5rem 1.5rem 3rem;position:relative;overflow:hidden;}
+.dash-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 30%,rgba(10,132,255,.2) 0%,transparent 60%);}
+.dash-hero-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:2rem;position:relative;}
+.dash-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0a84ff,#005ecb);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;font-family:'Outfit',sans-serif;font-weight:700;border:3px solid rgba(255,255,255,.2);flex-shrink:0;}
+.dash-welcome h1{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,4vw,2.5rem);color:#fff;margin:0;}
+.dash-welcome h1 em{color:#0a84ff;font-style:italic;}
+.dash-welcome p{color:#94a3b8;font-family:'Outfit',sans-serif;margin:0;font-size:.93rem;}
+.dash-quick-actions{display:flex;gap:.7rem;flex-wrap:wrap;}
+.dqa{padding:.6rem 1.2rem;border-radius:12px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.84rem;border:1.5px solid rgba(255,255,255,.22);color:#fff;background:rgba(255,255,255,.07);backdrop-filter:blur(8px);text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:.2s;cursor:pointer;}
+.dqa:hover{background:rgba(10,132,255,.35);border-color:#0a84ff;color:#fff;}
+.dqa.green:hover{background:rgba(16,185,129,.25);border-color:#10b981;}
+
+.dash-wrap{max-width:1160px;margin:0 auto;padding:2.5rem 1.5rem;}
+
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;margin-bottom:2.5rem;}
+.ds-chip{background:var(--db-card);border:1px solid var(--db-border);border-radius:16px;padding:1.4rem;display:flex;align-items:center;gap:1rem;}
+.ds-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.ds-val{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--db-dark);line-height:1;}
+.dark-mode .ds-val{color:#e2e8f0;}
+.ds-lbl{font-family:'Outfit',sans-serif;font-size:.75rem;color:var(--db-muted);margin-top:.15rem;}
+
+.db-card{background:var(--db-card);border:1px solid var(--db-border);border-radius:20px;padding:1.8rem;box-shadow:0 4px 20px rgba(0,0,0,.05);}
+.db-card-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--db-dark);margin-bottom:1.2rem;display:flex;align-items:center;gap:.6rem;}
+.dark-mode .db-card-title{color:#e2e8f0;}
+.db-card-title i{color:#0a84ff;}
+
+.trip-card-mini{border:1px solid var(--db-border);border-radius:14px;padding:1.2rem;margin-bottom:.75rem;background:var(--db-bg);transition:.2s;}
+.trip-card-mini:hover{border-color:#0a84ff;box-shadow:0 4px 16px rgba(10,132,255,.1);}
+.trip-card-mini:last-child{margin-bottom:0;}
+.tc-dest{font-family:'Cormorant Garamond',serif;font-size:1.22rem;font-weight:700;color:var(--db-dark);}
+.dark-mode .tc-dest{color:#e2e8f0;}
+.tc-meta{font-family:'Outfit',sans-serif;font-size:.78rem;color:var(--db-muted);margin-top:.3rem;}
+.tc-cost{font-family:'Cormorant Garamond',serif;font-size:1.12rem;font-weight:700;color:#0a84ff;}
+
+.ts-badge{display:inline-flex;align-items:center;gap:.32rem;padding:.22rem .7rem;border-radius:20px;font-size:.7rem;font-weight:600;font-family:'Outfit',sans-serif;}
+.ts-upcoming{background:#dbeafe;color:#1e40af;}.ts-past{background:#f1f5f9;color:#475569;}
+.dark-mode .ts-upcoming{background:#1e3a5f;color:#93c5fd;}.dark-mode .ts-past{background:#1e293b;color:#94a3b8;}
+
+.bm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;}
+.bm-chip{background:var(--db-bg);border:1px solid var(--db-border);border-radius:12px;padding:.85rem;text-align:center;cursor:pointer;transition:.2s;}
+.bm-chip:hover{border-color:#0a84ff;background:#eff6ff;}
+.dark-mode .bm-chip:hover{background:#1e3a5f;}
+.bm-chip i{font-size:1.5rem;color:#0a84ff;display:block;margin-bottom:.35rem;}
+.bm-chip span{font-size:.82rem;font-weight:600;color:var(--db-dark);font-family:'Outfit',sans-serif;}
+.dark-mode .bm-chip span{color:#e2e8f0;}
+.bm-chip small{display:block;font-size:.68rem;color:var(--db-muted);margin-top:.1rem;}
+
+.exp-mini{display:flex;align-items:center;justify-content:space-between;padding:.62rem 0;border-bottom:1px solid var(--db-border);font-family:'Outfit',sans-serif;}
+.exp-mini:last-child{border-bottom:none;}
+.exp-mini-cat{font-size:.72rem;color:var(--db-muted);}
+.exp-mini-amt{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:#10b981;}
+
+.empty-msg{text-align:center;padding:1.8rem;color:var(--db-muted);font-family:'Outfit',sans-serif;}
+.empty-msg i{font-size:2.2rem;color:#0a84ff;display:block;margin-bottom:.7rem;}
+
+@media(max-width:768px){.dash-hero-inner{flex-direction:column;}.dash-quick-actions{justify-content:center;}}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══ DASHBOARD HERO ═══ -->
+<div class="dash-hero">
+  <div class="dash-hero-inner">
+    <div style="display:flex;align-items:center;gap:1.2rem;">
+      <div class="dash-avatar">{{ current_user.initials }}</div>
+      <div class="dash-welcome">
+        <h1>Hello, <em>{{ current_user.name.split()[0] }}</em> ✈️</h1>
+        <p>Member since {{ current_user.created_at.strftime('%B %Y') }} · Your personal travel hub</p>
+      </div>
+    </div>
+    <div class="dash-quick-actions">
+      <a href="{{ url_for('planner') }}"                      class="dqa"><i class="bi bi-map-fill"></i> Plan a Trip</a>
+      <a href="{{ url_for('tracker') }}"                      class="dqa green"><i class="bi bi-wallet2"></i> Add Expense</a>
+      <a href="{{ url_for('index') }}#destinations"           class="dqa"><i class="bi bi-globe2"></i> Explore</a>
+      <a href="{{ url_for('logout') }}"                       class="dqa" style="border-color:rgba(239,68,68,.4);"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </div>
+</div>
+
+
+<div class="dash-wrap">
+
+  <!-- ═══ STAT CHIPS ═══ -->
+  <div class="dash-stats" data-aos="fade-up">
+    <div class="ds-chip">
+      <div class="ds-icon" style="background:#dbeafe;"><i class="bi bi-suitcase-lg" style="color:#0a84ff;"></i></div>
+      <div><div class="ds-val">{{ trips|length }}</div><div class="ds-lbl">Total Trips</div></div>
+    </div>
+    <div class="ds-chip">
+      <div class="ds-icon" style="background:#dcfce7;"><i class="bi bi-calendar-check" style="color:#10b981;"></i></div>
+      <div><div class="ds-val">{{ upcoming_trips|length }}</div><div class="ds-lbl">Upcoming</div></div>
+    </div>
+    <div class="ds-chip">
+      <div class="ds-icon" style="background:#fef3c7;"><i class="bi bi-cash-coin" style="color:#f59e0b;"></i></div>
+      <div><div class="ds-val">₹{{ "{:,.0f}".format(total_spent) }}</div><div class="ds-lbl">Total Spent</div></div>
+    </div>
+    <div class="ds-chip">
+      <div class="ds-icon" style="background:#f3e8ff;"><i class="bi bi-bookmark-heart" style="color:#9333ea;"></i></div>
+      <div><div class="ds-val">{{ bookmarks|length }}</div><div class="ds-lbl">Saved Places</div></div>
+    </div>
+  </div>
+
+
+  <div class="row g-4">
+
+    <!-- ══ LEFT COL ══ -->
+    <div class="col-lg-8">
+
+      <!-- Upcoming Trips -->
+      <div class="db-card mb-4" data-aos="fade-up">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.3rem;">
+          <div class="db-card-title" style="margin-bottom:0;"><i class="bi bi-airplane-engines"></i> Upcoming Trips</div>
+          <a href="{{ url_for('planner') }}" style="font-family:'Outfit',sans-serif;font-size:.84rem;color:#0a84ff;text-decoration:none;font-weight:600;">+ New Trip</a>
+        </div>
+
+        {% if upcoming_trips %}
+          {% for t in upcoming_trips[:5] %}
+          <div class="trip-card-mini">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.6rem;">
+              <div>
+                <div class="tc-dest">{{ t.destination }}</div>
+                <div class="tc-meta">
+                  <i class="bi bi-calendar3"></i>
+                  {{ t.start_date.strftime('%d %b') }} → {{ t.end_date.strftime('%d %b %Y') }}
+                  &nbsp;·&nbsp; {{ t.duration_days }} days
+                  &nbsp;·&nbsp; {{ t.travellers }} pax
+                  {% if t.transport_type %}&nbsp;·&nbsp; {{ t.transport_type }}{% endif %}
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <span class="ts-badge ts-upcoming"><i class="bi bi-clock"></i> Upcoming</span>
+                <div class="tc-cost" style="margin-top:.45rem;">₹{{ "{:,.0f}".format(t.estimated_cost) }}</div>
+                <div style="font-family:'Outfit',sans-serif;font-size:.7rem;color:var(--db-muted);">{{ t.budget_type.capitalize() }}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:.7rem;margin-top:.8rem;flex-wrap:wrap;">
+              <a href="{{ url_for('download_trip_pdf', trip_id=t.id) }}" style="font-family:'Outfit',sans-serif;font-size:.78rem;color:#0a84ff;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+                <i class="bi bi-file-earmark-pdf"></i> Download PDF
+              </a>
+              <span style="color:var(--db-border);">|</span>
+              <a href="{{ url_for('email_trip_pdf', trip_id=t.id) }}" style="font-family:'Outfit',sans-serif;font-size:.78rem;color:#10b981;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+                <i class="bi bi-envelope-arrow-up"></i> Email PDF
+              </a>
+              <span style="color:var(--db-border);">|</span>
+              <a href="{{ url_for('tracker') }}?trip_id={{ t.id }}" style="font-family:'Outfit',sans-serif;font-size:.78rem;color:#f59e0b;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+                <i class="bi bi-wallet2"></i> Expenses
+              </a>
+              <span style="color:var(--db-border);">|</span>
+              <form method="POST" action="{{ url_for('delete_trip', trip_id=t.id) }}" style="display:inline;" onsubmit="return confirm('Delete this trip?')">
+                <button type="submit" style="background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.78rem;color:#dc2626;padding:0;display:flex;align-items:center;gap:.3rem;">
+                  <i class="bi bi-trash3"></i> Delete
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-msg">
+          <i class="bi bi-airplane"></i>
+          <p style="font-weight:600;color:var(--db-dark);">No upcoming trips yet.</p>
+          <a href="{{ url_for('planner') }}" style="color:#0a84ff;font-weight:600;font-family:'Outfit',sans-serif;">Plan your first adventure →</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Past Trips -->
+      {% if past_trips %}
+      <div class="db-card mb-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="db-card-title"><i class="bi bi-clock-history"></i> Past Trips</div>
+        {% for t in past_trips[:4] %}
+        <div class="trip-card-mini">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;">
+            <div>
+              <div class="tc-dest">{{ t.destination }}</div>
+              <div class="tc-meta">{{ t.start_date.strftime('%d %b') }} → {{ t.end_date.strftime('%d %b %Y') }} · {{ t.duration_days }} days</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="ts-badge ts-past"><i class="bi bi-check2-circle"></i> Completed</span>
+              <div class="tc-cost" style="color:#64748b;margin-top:.35rem;">₹{{ "{:,.0f}".format(t.estimated_cost) }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Monthly Spending Chart -->
+      {% if monthly_spending != '{}' %}
+      <div class="db-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="db-card-title"><i class="bi bi-bar-chart"></i> Monthly Spending</div>
+        <canvas id="monthlyChart" height="175"></canvas>
+      </div>
+      {% endif %}
+
+    </div><!-- /left col -->
+
+
+    <!-- ══ RIGHT COL ══ -->
+    <div class="col-lg-4">
+
+      <!-- Bookmarks -->
+      <div class="db-card mb-4" data-aos="fade-left">
+        <div class="db-card-title"><i class="bi bi-bookmark-heart"></i> Saved Destinations</div>
+        {% if bookmarks %}
+        <div class="bm-grid">
+          {% for b in bookmarks %}
+          <div class="bm-chip" onclick="location.href='{{ url_for('planner') }}?dest={{ b.destination }}'">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>{{ b.destination }}</span>
+            <small>{{ b.saved_at.strftime('%d %b %Y') }}</small>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-msg" style="padding:1.2rem;">
+          <i class="bi bi-bookmark" style="font-size:1.8rem;"></i>
+          <p style="font-size:.84rem;">Bookmark destinations from the home page to save them here.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Recent Expenses -->
+      <div class="db-card mb-4" data-aos="fade-left" data-aos-delay="60">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div class="db-card-title" style="margin-bottom:0;font-size:1.3rem;"><i class="bi bi-receipt"></i> Recent Expenses</div>
+          <a href="{{ url_for('tracker') }}" style="font-family:'Outfit',sans-serif;font-size:.82rem;color:#10b981;text-decoration:none;font-weight:600;">View all</a>
+        </div>
+        {% if recent_expenses %}
+          {% for exp in recent_expenses %}
+          <div class="exp-mini">
+            <div>
+              <div style="font-size:.87rem;color:var(--db-dark);font-family:'Outfit',sans-serif;">{{ exp.description[:28] }}{% if exp.description|length > 28 %}…{% endif %}</div>
+              <div class="exp-mini-cat">{{ exp.category.capitalize() }} · {{ exp.expense_date.strftime('%d %b') }}</div>
+            </div>
+            <div class="exp-mini-amt">₹{{ "{:,.0f}".format(exp.amount) }}</div>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-msg" style="padding:1rem;">
+          <i class="bi bi-cash" style="font-size:1.6rem;display:block;margin-bottom:.5rem;"></i>
+          <p style="font-size:.83rem;">No expenses yet. <a href="{{ url_for('tracker') }}" style="color:#10b981;">Add one →</a></p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Mini World Map (Google Maps) -->
+      <div class="db-card" data-aos="fade-left" data-aos-delay="120">
+        <div class="db-card-title"><i class="bi bi-map-fill"></i> Your World Map</div>
+        <div id="dashMap" style="height:240px;border-radius:14px;overflow:hidden;"></div>
+        {% if not maps_key %}
+        <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.65rem;justify-content:center;">
+          <button type="button" class="dash-map-chip is-active" data-map-url="{{ maps_embed_url }}"
+                  onclick="focusDashMap(this.dataset.mapUrl)">All</button>
+          {% for d in destinations %}
+          <button type="button" class="dash-map-chip" data-map-url="{{ maps_embed_dest_url(d) }}"
+                  onclick="focusDashMap(this.dataset.mapUrl)">{{ d.name }}</button>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="font-family:'Outfit',sans-serif;font-size:.74rem;color:var(--db-muted);margin-top:.6rem;text-align:center;">
+          🔵 Blue = all destinations &nbsp;|&nbsp; 🟡 Gold = your saved places
+        </p>
+        {% endif %}
+      </div>
+
+    </div><!-- /right col -->
+
+  </div><!-- /row -->
+
+
+  <!-- Account Info -->
+  <div class="db-card mt-4" data-aos="fade-up">
+    <div class="db-card-title"><i class="bi bi-person-circle"></i> Account Details</div>
+    <div class="row g-3" style="font-family:'Outfit',sans-serif;">
+      <div class="col-md-4">
+        <div style="font-size:.76rem;color:var(--db-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;">Full Name</div>
+        <div style="font-size:.94rem;color:var(--db-dark);">{{ current_user.name }}</div>
+      </div>
+      <div class="col-md-4">
+        <div style="font-size:.76rem;color:var(--db-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;">Email Address</div>
+        <div style="font-size:.94rem;color:var(--db-dark);">{{ current_user.email }}</div>
+      </div>
+      <div class="col-md-4">
+        <div style="font-size:.76rem;color:var(--db-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;">Member Since</div>
+        <div style="font-size:.94rem;color:var(--db-dark);">{{ current_user.created_at.strftime('%d %B %Y') }}</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /dash-wrap -->
+{% endblock %}
+
+
+{% block extra_js %}
+<style>
+  .dash-map-chip {
+    font-family: 'Outfit', sans-serif;
+    font-size: .68rem;
+    font-weight: 600;
+    padding: .22rem .55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(10,132,255,.22);
+    background: var(--db-card, #fff);
+    color: var(--db-dark, #0f172a);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .dash-map-chip:hover,
+  .dash-map-chip.is-active {
+    background: #0a84ff;
+    border-color: #0a84ff;
+    color: #fff;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  /* ── Monthly Bar Chart ─────────────────────── */
+  const mData = {{ monthly_spending|safe }};
+  if (Object.keys(mData).length > 0) {
+    const mCtx = document.getElementById('monthlyChart');
+    if (mCtx) {
+      new Chart(mCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(mData),
+          datasets: [{
+            label: 'Spending (₹)',
+            data:  Object.values(mData),
+            backgroundColor: 'rgba(10,132,255,0.72)',
+            borderColor:     '#0a84ff',
+            borderWidth:     2,
+            borderRadius:    8,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: c => ' ₹' + c.parsed.y.toLocaleString('en-IN') }
+            }
+          },
+          scales: {
+            y: {
+              grid:  { color: document.body.classList.contains('dark-mode') ? '#334155' : '#f1f5f9' },
+              ticks: { color:'#64748b', callback: v => '₹'+(v>=1000?(v/1000).toFixed(0)+'K':v) }
+            },
+            x: { grid:{ display:false }, ticks:{ color:'#64748b', maxRotation:45 } }
+          }
+        }
+      });
+    }
+  }
+
+  /* ══════════════════════════════════════════════
+     GOOGLE MAPS — Mini Dashboard Map
+     ─────────────────────────────────────────────
+     All destinations shown as blue dots.
+     User's bookmarked destinations shown as gold.
+  ══════════════════════════════════════════════ */
+  const DASH_DESTINATIONS = {{ destinations|tojson }};
+  const SAVED_PLACES = {{ bookmarks|map(attribute='destination')|list|tojson }};
+
+  {% if maps_key %}
+  function initDashMap() {
+    const isDark = document.body.classList.contains('dark-mode');
+
+    const DARK_STYLE = [
+      {elementType:'geometry',          stylers:[{color:'#1e293b'}]},
+      {elementType:'labels.text.fill',  stylers:[{color:'#94a3b8'}]},
+      {elementType:'labels.text.stroke',stylers:[{color:'#0f172a'}]},
+      {featureType:'road',   elementType:'geometry', stylers:[{color:'#334155'}]},
+      {featureType:'water',  elementType:'geometry', stylers:[{color:'#0f172a'}]},
+      {featureType:'poi',    stylers:[{visibility:'off'}]},
+      {featureType:'transit',stylers:[{visibility:'off'}]},
+    ];
+    const LIGHT_STYLE = [
+      {featureType:'poi',    stylers:[{visibility:'off'}]},
+      {featureType:'transit',stylers:[{visibility:'off'}]},
+    ];
+
+    const map = new google.maps.Map(document.getElementById('dashMap'), {
+      center:           { lat: 20, lng: 20 },
+      zoom:             1,
+      styles:           isDark ? DARK_STYLE : LIGHT_STYLE,
+      mapTypeControl:   false,
+      streetViewControl:false,
+      zoomControl:      false,
+      fullscreenControl:false,
+      scrollwheel:      false,
+      gestureHandling:  'none',
+    });
+
+    const infoWin = new google.maps.InfoWindow({ maxWidth: 160 });
+
+    DASH_DESTINATIONS.forEach(dest => {
+      const isSaved = SAVED_PLACES.includes(dest.name);
+      const marker  = new google.maps.Marker({
+        position: { lat: dest.lat, lng: dest.lng },
+        map:      map,
+        title:    dest.name,
+        icon: {
+          path:         google.maps.SymbolPath.CIRCLE,
+          scale:        isSaved ? 9 : 7,
+          fillColor:    isSaved ? '#f59e0b' : '#0a84ff',
+          fillOpacity:  1,
+          strokeColor:  '#ffffff',
+          strokeWeight: 2,
+        },
+      });
+
+      marker.addListener('click', () => {
+        infoWin.setContent(
+          `<div style="font-family:'Outfit',sans-serif;padding:4px;">
+            <b style="color:${isSaved?'#f59e0b':'#0a84ff'};">📍 ${dest.name}</b><br>
+            <a href="/planner?dest=${encodeURIComponent(dest.name)}"
+               style="font-size:.78rem;color:#0f172a;">✈ Plan trip</a>
+          </div>`
+        );
+        infoWin.open(map, marker);
+      });
+    });
+
+    /* Sync dark-mode style changes */
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      setTimeout(() => {
+        map.setOptions({ styles: document.body.classList.contains('dark-mode') ? DARK_STYLE : LIGHT_STYLE });
+      }, 50);
+    });
+  }
+  {% else %}
+  /* No API key — Google Maps embed with all site destinations */
+  const MAPS_EMBED_ALL = {{ maps_embed_url|tojson }};
+  function initDashMap() {
+    const el = document.getElementById('dashMap');
+    el.innerHTML = `<iframe
+      src="${MAPS_EMBED_ALL}"
+      style="width:100%;height:100%;border:none;" loading="lazy"
+      allowfullscreen referrerpolicy="no-referrer-when-downgrade"
+      title="Your World Map"></iframe>`;
+  }
+  function focusDashMap(destUrl) {
+    const iframe = document.querySelector('#dashMap iframe');
+    if (iframe) iframe.src = destUrl;
+    document.querySelectorAll('.dash-map-chip').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.mapUrl === destUrl);
+    });
+  }
+  {% endif %}
+</script>
+
+{% if maps_key %}
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&callback=initDashMap&loading=async">
+</script>
+{% else %}
+<script>window.addEventListener('DOMContentLoaded', initDashMap);</script>
+{% endif %}
+{% endblock %}

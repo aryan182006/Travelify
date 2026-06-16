@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+{% block title %}Trip Planner — Travelify{% endblock %}
+{% block extra_css %}
+<style>
+:root{--pl-blue:#0a84ff;--pl-dark:#0f172a;--pl-card:#fff;--pl-border:#e2e8f0;--pl-muted:#64748b;--pl-bg:#f8fafc;}
+.dark-mode{--pl-card:#1e293b;--pl-border:#334155;--pl-muted:#94a3b8;--pl-bg:#0f172a;}
+.planner-hero{background:linear-gradient(135deg,#0f172a,#1e3a5f,#0a84ff1a);padding:5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+.planner-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(10,132,255,.18),transparent 70%);}
+.planner-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.5rem);color:#fff;position:relative;}
+.planner-hero h1 em{color:#0a84ff;font-style:italic;}
+.planner-hero p{color:#94a3b8;font-family:'Outfit',sans-serif;position:relative;}
+.planner-wrap{max-width:1160px;margin:0 auto;padding:3rem 1.5rem;}
+.plan-card{background:var(--pl-card);border:1px solid var(--pl-border);border-radius:20px;padding:2rem;box-shadow:0 4px 24px rgba(0,0,0,.06);}
+.plan-card-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--pl-dark);margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;}
+.dark-mode .plan-card-title{color:#e2e8f0;}
+.plan-card-title i{color:var(--pl-blue);}
+.plan-label{font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;color:var(--pl-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.4rem;}
+.plan-input{width:100%;padding:.65rem 1rem;border:1.5px solid var(--pl-border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.95rem;background:var(--pl-bg);color:var(--pl-dark);transition:.2s;}
+.dark-mode .plan-input{background:#0f172a;color:#e2e8f0;border-color:#334155;}
+.plan-input:focus{outline:none;border-color:var(--pl-blue);box-shadow:0 0 0 3px rgba(10,132,255,.15);}
+.budget-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:.4rem;}
+.budget-opt input{position:absolute;opacity:0;width:0;height:0;}
+.budget-opt{position:relative;}
+.budget-lbl{display:flex;flex-direction:column;align-items:center;padding:1.2rem .8rem;border:2px solid var(--pl-border);border-radius:14px;cursor:pointer;transition:.2s;text-align:center;font-family:'Outfit',sans-serif;background:var(--pl-card);}
+.budget-lbl:hover{border-color:var(--pl-blue);background:#f0f9ff;}
+.budget-opt input:checked+.budget-lbl{border-color:var(--pl-blue);background:#eff6ff;box-shadow:0 0 0 3px rgba(10,132,255,.15);}
+.dark-mode .budget-opt input:checked+.budget-lbl{background:#1e3a5f;}
+.budget-lbl i{font-size:1.8rem;margin-bottom:.5rem;color:var(--pl-blue);}
+.budget-lbl span{font-weight:600;font-size:.9rem;color:var(--pl-dark);}
+.dark-mode .budget-lbl span{color:#e2e8f0;}
+.budget-lbl small{color:var(--pl-muted);font-size:.72rem;margin-top:.2rem;}
+.plan-actions{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.5rem;}
+.plan-btn{padding:.7rem 1.5rem;border-radius:12px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.9rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;transition:.2s;}
+.plan-btn-primary{background:var(--pl-blue);color:#fff;}
+.plan-btn-primary:hover{background:#006ee0;transform:translateY(-1px);}
+.plan-btn-outline{background:transparent;color:var(--pl-blue);border:2px solid var(--pl-blue);}
+.plan-btn-outline:hover{background:#eff6ff;}
+.plan-btn-success{background:#10b981;color:#fff;}
+.plan-btn-success:hover{background:#059669;}
+.estimate-box{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:18px;padding:2.5rem;color:#fff;display:grid;grid-template-columns:1fr auto;align-items:center;gap:1.5rem;margin-bottom:1.5rem;}
+.estimate-total{font-family:'Cormorant Garamond',serif;font-size:3rem;color:#0a84ff;font-weight:700;}
+.breakdown-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-top:1.5rem;}
+.breakdown-item{background:var(--pl-card);border:1px solid var(--pl-border);border-radius:14px;padding:1.2rem;text-align:center;}
+.breakdown-item i{font-size:1.4rem;color:var(--pl-blue);display:block;margin-bottom:.4rem;}
+.breakdown-item .b-amount{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--pl-dark);}
+.dark-mode .breakdown-item .b-amount{color:#e2e8f0;}
+.breakdown-item .b-label{font-family:'Outfit',sans-serif;font-size:.76rem;color:var(--pl-muted);margin-top:.2rem;}
+.trip-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr auto;align-items:center;gap:1rem;padding:1rem 1.2rem;border-bottom:1px solid var(--pl-border);font-family:'Outfit',sans-serif;}
+.trip-row:last-child{border-bottom:none;}
+.badge-budget{padding:.25rem .7rem;border-radius:20px;font-size:.72rem;font-weight:600;text-transform:uppercase;}
+.badge-basic{background:#dcfce7;color:#166534;}.badge-luxury{background:#fef9c3;color:#713f12;}.badge-premium{background:#fce7f3;color:#831843;}
+.dark-mode .badge-basic{background:#14532d;color:#86efac;}.dark-mode .badge-luxury{background:#422006;color:#fde047;}.dark-mode .badge-premium{background:#500724;color:#f9a8d4;}
+@media(max-width:768px){.budget-grid{grid-template-columns:1fr;}.trip-row{grid-template-columns:1fr 1fr;}.estimate-box{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="planner-hero">
+  <span class="hero-badge" style="position:relative;"><i class="bi bi-map-fill"></i> Smart Trip Planner</span>
+  <h1>Plan Your <em>Perfect Journey</em></h1>
+  <p>Estimate costs, book hotels, arrange transport — download or email your full PDF plan.</p>
+</div>
+
+<div class="planner-wrap">
+  <div class="row g-4">
+    <!-- FORM -->
+    <div class="col-lg-7">
+      <div class="plan-card">
+        <div class="plan-card-title"><i class="bi bi-compass"></i> Build Your Trip</div>
+        <form method="POST" action="{{ url_for('planner') }}" id="plannerForm">
+          <div class="row g-3 mb-3">
+            <div class="col-12">
+              <label class="plan-label">Destination</label>
+              <select class="plan-input" name="destination" id="destSelect" required>
+                <option value="">— Choose a destination —</option>
+                {% for d in destinations %}
+                  <option value="{{ d.name }}" {% if trip_data and trip_data.destination==d.name %}selected{% endif %}>{{ d.name }}</option>
+                {% endfor %}
+                <option value="__custom__">✏️ Other / Custom</option>
+              </select>
+            </div>
+            <div id="customWrap" style="display:none;" class="col-12">
+              <label class="plan-label">Enter Custom Destination</label>
+              <input type="text" id="customDest" class="plan-input" placeholder="e.g. Maldives, Switzerland...">
+            </div>
+            <div class="col-md-6">
+              <label class="plan-label">Departure Date</label>
+              <input type="date" name="start_date" class="plan-input" required
+                     value="{{ trip_data.start_date.isoformat() if trip_data else '' }}" min="{{ today }}">
+            </div>
+            <div class="col-md-6">
+              <label class="plan-label">Return Date</label>
+              <input type="date" name="end_date"   class="plan-input" required
+                     value="{{ trip_data.end_date.isoformat()   if trip_data else '' }}" min="{{ today }}">
+            </div>
+            <div class="col-md-6">
+              <label class="plan-label">Travellers</label>
+              <input type="number" name="travellers" class="plan-input" min="1" max="20"
+                     value="{{ trip_data.travellers if trip_data else 1 }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="plan-label">Hotel Name (optional)</label>
+              <input type="text" name="hotel_name" class="plan-input" placeholder="e.g. Taj, Airbnb"
+                     value="{{ trip_data.hotel_name if trip_data else '' }}">
+            </div>
+            <div class="col-12">
+              <label class="plan-label">Transport</label>
+              <select name="transport_type" class="plan-input">
+                <option value="">— Select transport —</option>
+                {% for t in ['Flight ✈️','Train 🚆','Bus 🚌','Car / Self-Drive 🚗','Cruise 🚢','Mixed'] %}
+                  <option value="{{ t }}" {% if trip_data and trip_data.transport_type==t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="plan-label">Budget Type</label>
+            <div class="budget-grid">
+              {% for btype,icon,desc in [('basic','bi-backpack','Economy — hostels, street food, buses'),('luxury','bi-gem','Comfort — 4★ hotels, restaurants'),('premium','bi-stars','5★ luxury — business class, fine dining')] %}
+              <div class="budget-opt">
+                <input type="radio" name="budget_type" id="bt_{{ btype }}" value="{{ btype }}"
+                       {% if (trip_data and trip_data.budget_type==btype) or (not trip_data and btype=='basic') %}checked{% endif %}>
+                <label class="budget-lbl" for="bt_{{ btype }}">
+                  <i class="bi {{ icon }}"></i>
+                  <span>{{ btype.capitalize() }}</span>
+                  <small>{{ desc }}</small>
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="plan-label">Notes / Special Requests</label>
+            <textarea name="notes" class="plan-input" rows="3"
+                      placeholder="Visa needs, dietary restrictions, specific hotels...">{{ trip_data.notes if trip_data else '' }}</textarea>
+          </div>
+
+          <div class="plan-actions">
+            <button type="submit" name="action" value="estimate" class="plan-btn plan-btn-primary">
+              <i class="bi bi-calculator"></i> Estimate Cost
+            </button>
+            <button type="submit" name="action" value="save" class="plan-btn plan-btn-outline">
+              <i class="bi bi-bookmark-plus"></i> Save Trip
+            </button>
+            <button type="submit" name="action" value="download" class="plan-btn plan-btn-success">
+              <i class="bi bi-file-earmark-pdf"></i> Download PDF
+            </button>
+            <button type="submit" name="action" value="email" class="plan-btn plan-btn-outline"
+                    style="border-color:#10b981;color:#10b981;">
+              <i class="bi bi-envelope-arrow-up"></i> Email PDF to Me
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- RESULT + TIPS -->
+    <div class="col-lg-5">
+      {% if estimate %}
+      <div class="plan-card mb-4" data-aos="fade-left">
+        <div class="plan-card-title"><i class="bi bi-currency-rupee"></i> Cost Estimate</div>
+        <div class="estimate-box">
+          <div>
+            <div style="font-family:'Outfit',sans-serif;color:#94a3b8;font-size:.85rem;margin-bottom:.3rem;">Total Estimated Budget</div>
+            <div class="estimate-total">₹{{ "{:,.0f}".format(estimate) }}</div>
+            <div style="font-family:'Outfit',sans-serif;color:#94a3b8;font-size:.82rem;margin-top:.3rem;">
+              {{ trip_data.travellers }} traveller{{ 's' if trip_data.travellers>1 else '' }} ·
+              {{ (trip_data.end_date-trip_data.start_date).days+1 }} days ·
+              {{ trip_data.budget_type.capitalize() }}
+            </div>
+          </div>
+          <div style="font-size:3rem;">{{ '🎒' if trip_data.budget_type=='basic' else '💎' if trip_data.budget_type=='luxury' else '👑' }}</div>
+        </div>
+        <div class="breakdown-grid">
+          {% set bicons={'hotel':'bi-building','food':'bi-cup-hot','transport':'bi-train-front','activities':'bi-camera'} %}
+          {% for cat,amt in breakdown.items() %}
+          <div class="breakdown-item">
+            <i class="bi {{ bicons.get(cat,'bi-cash') }}"></i>
+            <div class="b-amount">₹{{ "{:,.0f}".format(amt) }}</div>
+            <div class="b-label">{{ cat.capitalize() }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="plan-card">
+        <div class="plan-card-title"><i class="bi bi-lightbulb"></i> Planning Tips</div>
+        {% for icon,tip in [('bi-calendar-check','Book flights 6–8 weeks early for the best deals.'),('bi-shield-check','Always get travel insurance before your trip.'),('bi-currency-exchange','Carry local currency for small markets.'),('bi-phone','Download offline maps before you depart.'),('bi-envelope-arrow-up','Use "Email PDF to Me" to get your plan in your inbox.')] %}
+        <div style="display:flex;align-items:flex-start;gap:.8rem;margin-bottom:1rem;font-family:'Outfit',sans-serif;">
+          <i class="bi {{ icon }}" style="color:#0a84ff;margin-top:.15rem;flex-shrink:0;"></i>
+          <span style="font-size:.87rem;color:#64748b;">{{ tip }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% if all_trips %}
+  <div class="plan-card mt-4">
+    <div class="plan-card-title"><i class="bi bi-suitcase-lg"></i> Your Saved Trips</div>
+    <div style="overflow-x:auto;">
+      <div class="trip-row" style="background:var(--pl-bg);font-weight:700;font-size:.76rem;text-transform:uppercase;color:var(--pl-muted);letter-spacing:.05em;border-radius:10px;">
+        <span>Destination</span><span>Dates</span><span>Budget</span><span>Est. Cost</span><span>Actions</span>
+      </div>
+      {% for t in all_trips %}
+      <div class="trip-row">
+        <div>
+          <strong style="font-size:.92rem;">{{ t.destination }}</strong>
+          <div style="font-size:.75rem;color:var(--pl-muted);">{{ t.travellers }} pax · {{ t.transport_type or 'TBD' }}</div>
+        </div>
+        <div style="font-size:.82rem;color:var(--pl-muted);">
+          {{ t.start_date.strftime('%d %b') }} → {{ t.end_date.strftime('%d %b %Y') }}<br>
+          <span style="color:#0a84ff;">{{ t.duration_days }} days</span>
+        </div>
+        <span class="badge-budget badge-{{ t.budget_type }}">{{ t.budget_type }}</span>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;">₹{{ "{:,.0f}".format(t.estimated_cost) }}</div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+          <a href="{{ url_for('download_trip_pdf',trip_id=t.id) }}" class="plan-btn plan-btn-outline" style="padding:.3rem .65rem;font-size:.78rem;" title="Download PDF"><i class="bi bi-file-pdf"></i></a>
+          <a href="{{ url_for('email_trip_pdf',trip_id=t.id) }}" class="plan-btn" style="padding:.3rem .65rem;font-size:.78rem;background:#dcfce7;color:#166534;border:none;" title="Email PDF"><i class="bi bi-envelope-arrow-up"></i></a>
+          <form method="POST" action="{{ url_for('delete_trip',trip_id=t.id) }}" onsubmit="return confirm('Delete this trip?')">
+            <button type="submit" class="plan-btn" style="padding:.3rem .65rem;font-size:.78rem;background:#fee2e2;color:#dc2626;border:none;"><i class="bi bi-trash3"></i></button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('input[type="date"]').forEach(i => { if(!i.min) i.min='{{ today }}'; });
+  const destSel=document.getElementById('destSelect');
+  const cWrap=document.getElementById('customWrap');
+  const cDest=document.getElementById('customDest');
+  destSel.addEventListener('change',()=>{
+    const isCustom=destSel.value==='__custom__';
+    cWrap.style.display=isCustom?'block':'none';
+    cDest.required=isCustom;
+  });
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('dest')){
+    const opt=[...destSel.options].find(o=>o.value===params.get('dest'));
+    if(opt) destSel.value=params.get('dest');
+  }
+  document.getElementById('plannerForm').addEventListener('submit',function(){
+    if(destSel.value==='__custom__'&&cDest.value.trim()){
+      destSel.disabled=true;
+      const h=document.createElement('input');
+      h.type='hidden';h.name='destination';h.value=cDest.value.trim();
+      this.appendChild(h);
+    }
+  });
+</script>
+{% endblock %}
