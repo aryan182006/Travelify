@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Expense Tracker — Travelify{% endblock %}
+{% block extra_css %}
+<style>
+:root{--tr-green:#10b981;--tr-dark:#0f172a;--tr-card:#fff;--tr-border:#e2e8f0;--tr-muted:#64748b;--tr-bg:#f8fafc;}
+.dark-mode{--tr-card:#1e293b;--tr-border:#334155;--tr-muted:#94a3b8;--tr-bg:#0f172a;}
+.tracker-hero{background:linear-gradient(135deg,#0f172a,#1a2a1a,#10b98122);padding:5rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+.tracker-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(16,185,129,.15),transparent 70%);}
+.tracker-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.2rem);color:#fff;position:relative;}
+.tracker-hero h1 em{color:#10b981;font-style:italic;}
+.tracker-hero p{color:#94a3b8;font-family:'Outfit',sans-serif;position:relative;}
+.tracker-wrap{max-width:1160px;margin:0 auto;padding:3rem 1.5rem;}
+.tr-card{background:var(--tr-card);border:1px solid var(--tr-border);border-radius:20px;padding:2rem;box-shadow:0 4px 24px rgba(0,0,0,.05);}
+.tr-card-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;color:var(--tr-dark);margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;}
+.dark-mode .tr-card-title{color:#e2e8f0;}
+.tr-card-title i{color:#10b981;}
+.tr-label{font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;color:var(--tr-muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.4rem;}
+.tr-input{width:100%;padding:.65rem 1rem;border:1.5px solid var(--tr-border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.95rem;background:var(--tr-bg);color:var(--tr-dark);transition:.2s;}
+.dark-mode .tr-input{background:#0f172a;color:#e2e8f0;border-color:#334155;}
+.tr-input:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15);}
+.tr-btn{padding:.65rem 1.4rem;border-radius:12px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.9rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;transition:.2s;}
+.tr-btn-green{background:#10b981;color:#fff;}.tr-btn-green:hover{background:#059669;transform:translateY(-1px);}
+.cat-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .8rem;border-radius:20px;font-size:.74rem;font-weight:600;font-family:'Outfit',sans-serif;}
+.cat-food{background:#fef3c7;color:#92400e;}.cat-hotel{background:#dbeafe;color:#1e40af;}.cat-transport{background:#f3e8ff;color:#6b21a8;}.cat-activities{background:#dcfce7;color:#166534;}.cat-misc{background:#f1f5f9;color:#475569;}
+.dark-mode .cat-food{background:#422006;color:#fde68a;}.dark-mode .cat-hotel{background:#1e3a5f;color:#93c5fd;}.dark-mode .cat-transport{background:#3b0764;color:#d8b4fe;}.dark-mode .cat-activities{background:#14532d;color:#86efac;}.dark-mode .cat-misc{background:#1e293b;color:#94a3b8;}
+.exp-row{display:grid;grid-template-columns:1fr 1.5fr 1fr 1fr auto;align-items:center;gap:1rem;padding:1rem 1.2rem;border-bottom:1px solid var(--tr-border);font-family:'Outfit',sans-serif;transition:.15s;}
+.exp-row:hover{background:var(--tr-bg);}.exp-row:last-child{border-bottom:none;}
+.exp-amount{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:#10b981;}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+.summary-item{background:var(--tr-card);border:1px solid var(--tr-border);border-radius:16px;padding:1.4rem;text-align:center;}
+.s-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin:0 auto .7rem;}
+.s-val{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--tr-dark);}
+.dark-mode .s-val{color:#e2e8f0;}
+.s-lbl{font-family:'Outfit',sans-serif;font-size:.76rem;color:var(--tr-muted);margin-top:.15rem;}
+.empty-state{text-align:center;padding:3rem;color:var(--tr-muted);font-family:'Outfit',sans-serif;}
+.empty-state i{font-size:3rem;display:block;margin-bottom:1rem;color:#10b981;}
+@media(max-width:768px){.exp-row{grid-template-columns:1fr 1fr;gap:.5rem;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tracker-hero">
+  <span class="hero-badge" style="position:relative;"><i class="bi bi-wallet2"></i> Smart Expense Tracker</span>
+  <h1>Track Your <em>Travel Budget</em></h1>
+  <p>Monitor every rupee you spend — categorised, summarised and always under control.</p>
+</div>
+
+<div class="tracker-wrap">
+  <div class="summary-grid" data-aos="fade-up">
+    <div class="summary-item"><div class="s-icon" style="background:#dcfce7;"><i class="bi bi-cash-coin" style="color:#10b981;"></i></div><div class="s-val">₹{{ "{:,.0f}".format(total_spent) }}</div><div class="s-lbl">Total Spent</div></div>
+    <div class="summary-item"><div class="s-icon" style="background:#dbeafe;"><i class="bi bi-receipt" style="color:#0a84ff;"></i></div><div class="s-val">{{ expenses|length }}</div><div class="s-lbl">Transactions</div></div>
+    <div class="summary-item"><div class="s-icon" style="background:#fef3c7;"><i class="bi bi-graph-up" style="color:#f59e0b;"></i></div><div class="s-val">₹{{ "{:,.0f}".format((total_spent/expenses|length) if expenses else 0) }}</div><div class="s-lbl">Avg per Entry</div></div>
+    <div class="summary-item"><div class="s-icon" style="background:#f3e8ff;"><i class="bi bi-suitcase-lg" style="color:#9333ea;"></i></div><div class="s-val">{{ trips|length }}</div><div class="s-lbl">Your Trips</div></div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="tr-card mb-4" data-aos="fade-right">
+        <div class="tr-card-title"><i class="bi bi-plus-circle"></i> Add Expense</div>
+        <form method="POST" action="{{ url_for('tracker') }}">
+          <input type="hidden" name="action" value="add">
+          <input type="hidden" name="filter_trip_id" value="{{ selected_trip_id or '' }}">
+          <div class="mb-3">
+            <label class="tr-label">Link to Trip (optional)</label>
+            <select name="trip_id" class="tr-input">
+              <option value="">— No specific trip —</option>
+              {% for t in trips %}<option value="{{ t.id }}" {% if selected_trip_id==t.id %}selected{% endif %}>{{ t.destination }} ({{ t.start_date.strftime('%d %b %Y') }})</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="tr-label">Category</label>
+            <select name="category" class="tr-input" required>
+              {% for c,e in [('food','🍽️'),('hotel','🏨'),('transport','🚌'),('activities','🎯'),('misc','📦')] %}
+              <option value="{{ c }}">{{ e }} {{ c.capitalize() }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="tr-label">Description</label>
+            <input type="text" name="description" class="tr-input" placeholder="e.g. Lunch at Noodle Bar" required>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6"><label class="tr-label">Amount (₹)</label><input type="number" name="amount" class="tr-input" placeholder="500" min="1" step="0.01" required></div>
+            <div class="col-6"><label class="tr-label">Date</label><input type="date" name="expense_date" class="tr-input" value="{{ today }}"></div>
+          </div>
+          <button type="submit" class="tr-btn tr-btn-green w-100"><i class="bi bi-plus-lg"></i> Add Expense</button>
+        </form>
+      </div>
+      {% if expenses %}
+      <div class="tr-card" data-aos="fade-right" data-aos-delay="100">
+        <div class="tr-card-title"><i class="bi bi-pie-chart"></i> Spending Breakdown</div>
+        <canvas id="spendChart" height="220"></canvas>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-7">
+      <div class="tr-card" data-aos="fade-left">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.4rem;">
+          <div class="tr-card-title" style="margin-bottom:0;"><i class="bi bi-list-check"></i> Expense Log</div>
+          <form method="GET" action="{{ url_for('tracker') }}" style="display:flex;gap:.5rem;">
+            <select name="trip_id" class="tr-input" style="width:auto;padding:.4rem .8rem;font-size:.84rem;">
+              <option value="">All Trips</option>
+              {% for t in trips %}<option value="{{ t.id }}" {% if selected_trip_id==t.id %}selected{% endif %}>{{ t.destination }}</option>{% endfor %}
+            </select>
+            <button type="submit" class="tr-btn" style="background:var(--tr-bg);border:1px solid var(--tr-border);color:var(--tr-muted);padding:.4rem .8rem;font-size:.84rem;"><i class="bi bi-funnel"></i></button>
+          </form>
+        </div>
+        {% if expenses %}
+        <div class="exp-row" style="background:var(--tr-bg);font-weight:700;font-size:.74rem;text-transform:uppercase;color:var(--tr-muted);letter-spacing:.05em;border-radius:10px;margin-bottom:.3rem;">
+          <span>Category</span><span>Description</span><span>Date</span><span>Amount</span><span></span>
+        </div>
+        {% for exp in expenses %}
+        <div class="exp-row">
+          <span class="cat-pill cat-{{ exp.category }}">{{ {'food':'🍽️','hotel':'🏨','transport':'🚌','activities':'🎯','misc':'📦'}.get(exp.category,'📦') }} {{ exp.category.capitalize() }}</span>
+          <div>
+            <div style="font-size:.88rem;">{{ exp.description[:32] }}{% if exp.description|length>32 %}…{% endif %}</div>
+            {% if exp.trip %}<div style="font-size:.74rem;color:var(--tr-muted);">{{ exp.trip.destination }}</div>{% endif %}
+          </div>
+          <div style="font-size:.8rem;color:var(--tr-muted);">{{ exp.expense_date.strftime('%d %b %Y') }}</div>
+          <div class="exp-amount">₹{{ "{:,.0f}".format(exp.amount) }}</div>
+          <form method="POST" action="{{ url_for('tracker') }}" onsubmit="return confirm('Remove?')">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="expense_id" value="{{ exp.id }}">
+            <input type="hidden" name="filter_trip_id" value="{{ selected_trip_id or '' }}">
+            <button type="submit" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:1.05rem;padding:.2rem .3rem;"><i class="bi bi-trash3"></i></button>
+          </form>
+        </div>
+        {% endfor %}
+        <div style="display:flex;justify-content:space-between;padding:1rem 1.2rem;background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:12px;margin-top:.8rem;">
+          <span style="font-family:'Outfit',sans-serif;font-weight:700;color:#fff;font-size:.9rem;">TOTAL</span>
+          <span style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:#10b981;">₹{{ "{:,.0f}".format(total_spent) }}</span>
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="bi bi-wallet"></i><h5 style="font-family:'Cormorant Garamond',serif;">No expenses yet</h5><p>Add your first travel expense above.</p>{% if not trips %}<p>Tip: <a href="{{ url_for('planner') }}" style="color:#10b981;">Create a trip first</a> to organise expenses by trip.</p>{% endif %}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const catData = {{ category_totals|safe }};
+  if (Object.keys(catData).length > 0) {
+    const ctx = document.getElementById('spendChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type:'doughnut',
+        data:{
+          labels: Object.keys(catData).map(c=>c[0].toUpperCase()+c.slice(1)),
+          datasets:[{data:Object.values(catData),backgroundColor:['#f59e0b','#0a84ff','#9333ea','#10b981','#64748b'],borderWidth:3,borderColor:document.body.classList.contains('dark-mode')?'#1e293b':'#fff',hoverOffset:10}]
+        },
+        options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:"'Outfit',sans-serif",size:12},color:document.body.classList.contains('dark-mode')?'#94a3b8':'#64748b',padding:16}},tooltip:{callbacks:{label:c=>' ₹'+c.parsed.toLocaleString('en-IN')+'  ('+((c.parsed/c.dataset.data.reduce((a,b)=>a+b,0))*100).toFixed(1)+'%)'}}}},cutout:'62%'}
+      });
+    }
+  }
+</script>
+{% endblock %}
